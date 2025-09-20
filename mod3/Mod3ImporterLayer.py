@@ -42,27 +42,27 @@ class Mod3ToModel():
             call(context)
             # self.api.resetContext(context)
 
-def parseOptions(self, options):
-    execute = []
-    if "Clear" in options:
-        execute.append(lambda c: self.clearScene(c))
-    if "Scene Header" in options:
-        execute.append(lambda c: self.setScene(c))
-    if "Skeleton" in options:
-        # Normalize skeleton value to a plain string
-        skeleton_value = options["Skeleton"]
-        if hasattr(skeleton_value, "default"):
-            skeleton_value = skeleton_value["default"]
-        elif not isinstance(skeleton_value, str):
-            skeleton_value = str(skeleton_value)
+    def parseOptions(self, options):
+        execute = []
+        if "Clear" in options:
+            execute.append(lambda c: self.clearScene(c))
+        if "Scene Header" in options:
+            execute.append(lambda c: self.setScene(c))
+        if "Skeleton" in options:
+            # Normalize skeleton value to a plain string
+            skeleton_value = options["Skeleton"]
+            if hasattr(skeleton_value, "default"):
+                skeleton_value = skeleton_value["default"]
+            elif not isinstance(skeleton_value, str):
+                skeleton_value = str(skeleton_value)
 
-        skeletonOperator = {
-            "EmptyTree": self.createEmptyTree,
-            "Armature": self.createArmature,
-            "None": lambda c: None
-        }.get(skeleton_value, lambda c: None)
+            skeletonOperator = {
+                "EmptyTree": self.createEmptyTree,
+                "Armature": self.createArmature,
+                "None": lambda c: None
+            }.get(skeleton_value, lambda c: None)
 
-        execute.append(lambda c: skeletonOperator(c))
+            execute.append(lambda c: skeletonOperator(c))
 
     if "Only Highest LOD" in options:
         execute.append(lambda c: self.filterToHighestLOD(c))
