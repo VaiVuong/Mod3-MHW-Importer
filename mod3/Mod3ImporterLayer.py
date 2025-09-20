@@ -82,9 +82,24 @@ class Mod3ToModel():
             execute.append(lambda c: self.maximizeClipping(c))
         if "Load Groups and Functions" in options and "Mesh Parts" in options:
             execute.append(lambda c: self.loadGroupsFunctions(c))
-        self.splitWeights = {"Group": 0, "Split": 1,
-                            "Slash": 2, "Signed": 3}[options["Split Weights"]]
+        # Normalize Split Weights
+        split_value = options["Split Weights"]
+        if isinstance(split_value, dict) and "default" in split_value:
+            split_value = split_value["default"]
+        elif hasattr(split_value, "default"):
+            split_value = split_value.default
+        elif not isinstance(split_value, str):
+            split_value = str(split_value)
+
+        self.splitWeights = {
+            "Group": 0,
+            "Split": 1,
+            "Slash": 2,
+            "Signed": 3
+        }.get(split_value, 0)
+
         self.omitEmpty = "Omit Unused Groups" in options
+
         return execute
 
 
