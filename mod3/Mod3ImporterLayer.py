@@ -42,38 +42,51 @@ class Mod3ToModel():
             call(context)
             # self.api.resetContext(context)
 
-    def parseOptions(self, options):
-        execute = []
-        if "Clear" in options:
-            execute.append(lambda c: self.clearScene(c))
-        if "Scene Header" in options:
-            execute.append(lambda c: self.setScene(c))
-        if "Skeleton" in options:
-            skeletonOperator = {"EmptyTree": self.createEmptyTree,
-                                "Armature": self.createArmature}[options["Skeleton"]]
-            execute.append(lambda c: skeletonOperator(c))
-        if "Only Highest LOD" in options:
-            execute.append(lambda c: self.filterToHighestLOD(c))
-        if "Mesh Parts" in options:
-            execute.append(lambda c: self.createMeshParts(c))
-            if "Import Textures" in options:
-                execute.append(lambda c: self.importTextures(
-                    c, options["Import Textures"]))
-            if "Import Materials" in options:
-                execute.append(lambda c: self.importMaterials(
-                    c, options["Import Materials"]))
-        # if "Mesh Unknown Properties" in options:
-        #    execute.append(lambda c: self.setMeshProperties(c))
-        if "Skeleton" in options and options["Skeleton"] == "Armature":
-            execute.append(lambda c: self.linkArmature(c))
-        if "Max Clip" in options:
-            execute.append(lambda c: self.maximizeClipping(c))
-        if "Load Groups and Functions" in options and "Mesh Parts" in options:
-            execute.append(lambda c: self.loadGroupsFunctions(c))
-        self.splitWeights = {"Group": 0, "Split": 1,
-                             "Slash": 2, "Signed": 3}[options["Split Weights"]]
-        self.omitEmpty = "Omit Unused Groups" in options
-        return execute
+def parseOptions(self, options):
+    execute = []
+    if "Clear" in options:
+        execute.append(lambda c: self.clearScene(c))
+    if "Scene Header" in options:
+        execute.append(lambda c: self.setScene(c))
+    if "Skeleton" in options:
+        # Normalize skeleton value to a plain string
+        skeleton_value = options["Skeleton"]
+        if hasattr(skeleton_value, "default"):
+            skeleton_value = skeleton_value["default"]
+        elif not isinstance(skeleton_value, str):
+            skeleton_value = str(skeleton_value)
+
+        skeletonOperator = {
+            "EmptyTree": self.createEmptyTree,
+            "Armature": self.createArmature,
+            "None": lambda c: None
+        }.get(skeleton_value, lambda c: None)
+
+        execute.append(lambda c: skeletonOperator(c))
+
+    if "Only Highest LOD" in options:
+        execute.append(lambda c: self.filterToHighestLOD(c))
+    if "Mesh Parts" in options:
+        execute.append(lambda c: self.createMeshParts(c))
+        if "Import Textures" in options:
+            execute.append(lambda c: self.importTextures(
+                c, options["Import Textures"]))
+        if "Import Materials" in options:
+            execute.append(lambda c: self.importMaterials(
+                c, options["Import Materials"]))
+    # if "Mesh Unknown Properties" in options:
+    #    execute.append(lambda c: self.setMeshProperties(c))
+    if "Skeleton" in options and options["Skeleton"] == "Armature":
+        execute.append(lambda c: self.linkArmature(c))
+    if "Max Clip" in options:
+        execute.append(lambda c: self.maximizeClipping(c))
+    if "Load Groups and Functions" in options and "Mesh Parts" in options:
+        execute.append(lambda c: self.loadGroupsFunctions(c))
+    self.splitWeights = {"Group": 0, "Split": 1,
+                         "Slash": 2, "Signed": 3}[options["Split Weights"]]
+    self.omitEmpty = "Omit Unused Groups" in options
+    return execute
+
 
     def loadGroupsFunctions(self, c):
         self.api.loadBoundingBoxes(self.model.boundingBoxes(), c)
