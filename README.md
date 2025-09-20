@@ -1,3 +1,6 @@
+# Extra NOTE
+This is not the official branch. THIS IS A TEST BRANCH for Blender LTS 4.5.3. Things will probably be broken everywhere.
+
 # Mod3-MHW-Importer
 Blender Mod3 Import-Exporter for Monster Hunter World. Written for Blender 2.79, no update for further Blender versions is planned (feel free to fork if you are interested in doing it yourself).
 
